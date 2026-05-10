@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getNotes } from '@/lib/api/notes';
-import type { Note } from '@/types/user';
+import type { Note } from '@/types/note';
 
 type NotesResponse = {
   items: Note[];
@@ -39,18 +39,17 @@ export default async function FilterPage({
 
   const filter = slug?.[0] || 'all';
 
-  const data: NotesResponse = await getNotes();
-  const notes = data.items;
+  const data: NotesResponse = await getNotes({
+    tag: filter === 'all' ? undefined : filter,
+    page: 1,
+  });
 
-  const filtered =
-    filter === 'all'
-      ? notes
-      : notes.filter((n) => n.tag.toLowerCase() === filter);
+  const notes = data.items;
 
   return (
     <main>
       <h1>Filter: {filter}</h1>
-      <pre>{JSON.stringify(filtered, null, 2)}</pre>
+      <pre>{JSON.stringify(notes, null, 2)}</pre>
     </main>
   );
 }

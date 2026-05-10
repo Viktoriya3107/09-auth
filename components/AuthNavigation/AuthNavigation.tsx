@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation'
 import { logout } from '@/lib/api/clientApi'
 
 export default function AuthNavigation() {
-  const { isAuthenticated, user, clearIsAuthenticated } = useAuthStore()
+  const { isAuthenticated, user, clear } = useAuthStore()
   const router = useRouter()
 
   const handleLogout = async () => {
     try {
       await logout()
-      clearIsAuthenticated()
+      clear()
       router.push('/sign-in')
     } catch {
-      clearIsAuthenticated()
+      clear()
     }
   }
 

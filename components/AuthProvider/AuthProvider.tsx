@@ -10,7 +10,7 @@ export default function AuthProvider({
 }: {
   children: ReactNode
 }) {
-  const { setUser, clearIsAuthenticated } = useAuthStore()
+  const { setUser, clear } = useAuthStore()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,22 +18,21 @@ export default function AuthProvider({
       try {
         const session = await checkSession()
 
-        // якщо сесія активна → отримуємо user
         if (session?.success) {
           const user = await getMe()
           setUser(user)
         } else {
-          clearIsAuthenticated()
+          clear()
         }
       } catch {
-        clearIsAuthenticated()
+        clear()
       } finally {
         setLoading(false)
       }
     }
 
     init()
-  }, [setUser, clearIsAuthenticated])
+  }, [setUser, clear])
 
   if (loading) return <p>Loading...</p>
 

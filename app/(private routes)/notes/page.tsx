@@ -1,12 +1,21 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 import { getNotes } from '@/lib/api/notes';
 
-export default async function NotesPage() {
-  const notes = await getNotes();
+export default function NotesPage() {
+  const { data } = useQuery({
+    queryKey: ['notes', { page: 1 }],
 
-  return (
-    <main>
-      <h1>All notes</h1>
-      <pre>{JSON.stringify(notes, null, 2)}</pre>
-    </main>
-  );
+    queryFn: ({ queryKey }) => {
+      const [, params] = queryKey as [
+        string,
+        { page?: number }
+      ];
+
+      return getNotes(params);
+    },
+  });
+
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
 }

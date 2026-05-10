@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getNoteById } from '@/lib/api/notes';
 
+export const dynamic = 'force-dynamic'; // 👈 ВАЖЛИВО
+
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {

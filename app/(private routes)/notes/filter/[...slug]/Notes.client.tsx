@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 
 import { getNotes } from '@/lib/api/notes';
-import type { Note } from '@/types/user';
+import type { Note } from '@/types/note';
 
 import SearchBox from '@/components/SearchBox/SearchBox';
 import Pagination from '@/components/Pagination/Pagination';
@@ -37,29 +37,29 @@ function useDebounce(value: string, delay = 300) {
 export default function NotesClient({ tag }: Props) {
   const router = useRouter();
 
-  // pagination state (required by review)
   const [page, setPage] = useState(1);
-
-  // search state
   const [search, setSearch] = useState('');
+
   const debouncedSearch = useDebounce(search);
 
-  // query
   const { data } = useQuery<NotesResponse>({
-    queryKey: ['notes', tag, debouncedSearch, page],
-    queryFn: () => getNotes(tag, debouncedSearch, page),
-  });
+  queryKey: ['notes', tag ?? '', debouncedSearch ?? '', page],
+  queryFn: () =>
+    getNotes({
+      tag,
+      search: debouncedSearch,
+      page,
+    }),
+});
 
   const notes = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
 
-  // search handler
   const handleSearch = (value: string) => {
     setSearch(value);
     setPage(1);
   };
 
-  // pagination handler
   const handlePageChange = (p: number) => {
     setPage(p);
   };

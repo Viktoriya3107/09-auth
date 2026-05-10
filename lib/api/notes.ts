@@ -1,35 +1,35 @@
-import axios from 'axios';
-import { Note, CreateNoteDTO } from '@/types/user';
-
-const BASE_URL = 'https://your-api-url.com';
+import { api } from './api'
+import type { Note } from '@/types/note'
 
 export type NotesResponse = {
-  items: Note[];
-  totalPages: number;
-};
+  items: Note[]
+  totalPages: number
+}
 
-export const getNotes = async (
-  tag?: string,
-  search?: string,
-  page: number = 1
-): Promise<NotesResponse> => {
-  const { data } = await axios.get(`${BASE_URL}/notes`, {
-    params: {
-      tag,
-      search,
-      page,
-    },
-  });
-
-  return data;
-};
+export const getNotes = async (params: {
+  tag?: string
+  search?: string
+  page?: number
+}) => {
+  const res = await api.get('/notes', { params })
+  return res.data
+}
 
 export const getNoteById = async (id: string): Promise<Note> => {
-  const { data } = await axios.get(`${BASE_URL}/notes/${id}`);
-  return data;
-};
+  const res = await api.get(`/notes/${id}`)
+  return res.data
+}
 
-export const createNote = async (note: CreateNoteDTO): Promise<Note> => {
-  const { data } = await axios.post(`${BASE_URL}/notes`, note);
-  return data;
-};
+export const createNote = async (data: {
+  title: string
+  content: string
+  tag: string
+}) => {
+  const res = await api.post('/notes', data)
+  return res.data
+}
+
+export const deleteNote = async (id: string) => {
+  const res = await api.delete(`/notes/${id}`)
+  return res.data
+}
