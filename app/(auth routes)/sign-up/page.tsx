@@ -1,13 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { register } from '@/lib/api/clientApi'
+import { register, getMe } from '@/lib/api/clientApi'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/lib/store/authStore'
 import styles from './SignUpPage.module.css'
 
 export default function SignUp() {
   const [error, setError] = useState('')
   const router = useRouter()
+
+  const setUser = useAuthStore((state) => state.setUser)
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -19,6 +22,21 @@ export default function SignUp() {
         email: form.get('email') as string,
         password: form.get('password') as string,
       })
+
+      // даємо бекенду встановити cookies
+      await new Promise((r) => setTimeout(r, 50))
+
+      let user = null
+
+      try {
+        user = await getMe()
+      } catch {
+        user = null
+      }
+
+      if (user) {
+        setUser(user)
+      }
 
       router.push('/profile')
     } catch {

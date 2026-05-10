@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useAuthStore } from '@/lib/store/authStore'
 import { useRouter } from 'next/navigation'
 import { logout } from '@/lib/api/clientApi'
@@ -23,16 +24,16 @@ export default function AuthNavigation() {
       {!isAuthenticated ? (
         <>
           <li>
-            <a href="/sign-in">Login</a>
+            <Link href="/sign-in">Login</Link>
           </li>
           <li>
-            <a href="/sign-up">Sign up</a>
+            <Link href="/sign-up">Sign up</Link>
           </li>
         </>
       ) : (
         <>
           <li>
-            <a href="/profile">Profile</a>
+            <Link href="/profile">Profile</Link>
           </li>
 
           <li>

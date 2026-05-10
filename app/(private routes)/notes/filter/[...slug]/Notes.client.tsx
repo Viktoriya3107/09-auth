@@ -1,86 +1,39 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-
-import { getNotes } from '@/lib/api/notes';
-import type { Note } from '@/types/note';
-
-import SearchBox from '@/components/SearchBox/SearchBox';
-import Pagination from '@/components/Pagination/Pagination';
-import NoteList from '@/components/NoteList/NoteList';
-
-type Props = {
-  tag?: string;
-};
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import Link from 'next/link'
+import { getNotes } from '@/lib/api/clientApi'
+import type { Note } from '@/types/note'
 
 type NotesResponse = {
-  items: Note[];
-  totalPages: number;
-};
-
-function useDebounce(value: string, delay = 300) {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebounced(value);
-    }, delay);
-
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debounced;
+  items: Note[]
+  totalPages: number
 }
 
-export default function NotesClient({ tag }: Props) {
-  const router = useRouter();
-
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-
-  const debouncedSearch = useDebounce(search);
+export default function NotesClient() {
+  const [page, setPage] = useState(1)
 
   const { data } = useQuery<NotesResponse>({
-  queryKey: ['notes', tag ?? '', debouncedSearch ?? '', page],
-  queryFn: () =>
-    getNotes({
-      tag,
-      search: debouncedSearch,
-      page,
-    }),
-});
-
-  const notes = data?.items ?? [];
-  const totalPages = data?.totalPages ?? 1;
-
-  const handleSearch = (value: string) => {
-    setSearch(value);
-    setPage(1);
-  };
-
-  const handlePageChange = (p: number) => {
-    setPage(p);
-  };
+    queryKey: ['notes', page],
+    queryFn: () => getNotes({ page }),
+  })
 
   return (
     <div>
-      <SearchBox onSearch={handleSearch} />
+      <ul>
+        {data?.items?.map((note) => (
+          <li key={note.id}>
+            <Link href={`/notes/${note.id}`}>
+              {note.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
 
-      {notes.length > 0 && <NoteList notes={notes} />}
-
-      {notes.length > 0 && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onChange={handlePageChange}
-        />
-      )}
-
-      <button onClick={() => router.push('/notes/action/create')}>
-        Create note
+      <button onClick={() => setPage((p) => p + 1)}>
+        Next
       </button>
     </div>
-  );
+  )
 }

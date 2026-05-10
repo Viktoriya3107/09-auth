@@ -1,8 +1,15 @@
 export const dynamic = 'force-dynamic'
 
-import { getMe } from '@/lib/api/serverApi'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { getMe } from '@/lib/api/clientApi'
 import Image from 'next/image'
 import styles from './ProfilePage.module.css'
+
+export const metadata: Metadata = {
+  title: 'Profile',
+  description: 'User profile page',
+}
 
 export default async function Profile() {
   const user = await getMe()
@@ -30,7 +37,7 @@ export default async function Profile() {
         <p>Username: {user.username}</p>
         <p>Email: {user.email}</p>
 
-        <a href="/profile/edit">Edit Profile</a>
+        <Link href="/profile/edit">Edit Profile</Link>
       </div>
     </main>
   )

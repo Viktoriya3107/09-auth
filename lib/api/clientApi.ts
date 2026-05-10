@@ -1,31 +1,57 @@
 import { api } from './api'
-import { User } from '@/types/user'
+import type { Note } from '@/types/note'
+import type { User } from '@/types/user'
 
-export const register = async (data: { email: string; password: string }) => {
-  const res = await api.post('/auth/register', data)
-  return res.data
+export type NotesResponse = {
+  items: Note[]
+  totalPages: number
 }
 
-export const login = async (data: { email: string; password: string }) => {
-  const res = await api.post('/auth/login', data)
-  return res.data
+type AuthDTO = {
+  email: string
+  password: string
 }
 
-export const logout = async () => {
-  await api.post('/auth/logout')
+type UpdateUserDTO = Partial<User>
+
+type CreateNoteDTO = {
+  title: string
+  content: string
+  tag: string
 }
 
-export const checkSession = async () => {
-  const res = await api.get('/auth/session')
-  return res.data
-}
 
-export const getMe = async (): Promise<User> => {
-  const res = await api.get('/users/me')
-  return res.data
-}
+export const register = (data: AuthDTO) =>
+  api.post('/auth/register', data).then(res => res.data)
 
-export const updateMe = async (data: Partial<User>) => {
-  const res = await api.patch('/users/me', data)
-  return res.data
-}
+export const login = (data: AuthDTO) =>
+  api.post('/auth/login', data).then(res => res.data)
+
+export const logout = () =>
+  api.post('/auth/logout').then(res => res.data)
+
+export const checkSession = () =>
+  api.get('/auth/session').then(res => res.data)
+
+export const getMe = (): Promise<User> =>
+  api.get('/users/me').then(res => res.data)
+
+export const updateMe = (data: UpdateUserDTO) =>
+  api.patch('/users/me', data).then(res => res.data)
+
+
+export const getNotes = (params?: {
+  tag?: string
+  search?: string
+  page?: number
+}) =>
+  api.get<NotesResponse>('/notes', { params }).then(res => res.data)
+
+export const getNoteById = (id: string): Promise<Note> =>
+  api.get<Note>(`/notes/${id}`).then(res => res.data)
+
+export const createNote = (data: CreateNoteDTO): Promise<Note> =>
+  api.post('/notes', data).then(res => res.data)
+
+export const deleteNote = (id: string): Promise<void> =>
+  api.delete(`/notes/${id}`).then(res => res.data)

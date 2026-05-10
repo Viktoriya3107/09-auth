@@ -1,14 +1,16 @@
-import type { Metadata } from 'next';
-import { getNoteById } from '@/lib/api/notes';
+import type { Metadata } from 'next'
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
+import { getNoteById } from '@/lib/api/clientApi'
+import NoteClient from './NoteClient'
 
-export const dynamic = 'force-dynamic'; // 👈 ВАЖЛИВО
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = params
 
-  const note = await getNoteById(id);
+  const note = await getNoteById(id)
 
   return {
     title: note.title,
@@ -23,23 +25,28 @@ export async function generateMetadata(
         },
       ],
     },
-  };
+  }
 }
 
 export default async function NotePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string }
 }) {
-  const { id } = await params;
+  const { id } = params
 
-  const note = await getNoteById(id);
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: ['note', id],
+    queryFn: () => getNoteById(id),
+  })
+
+  const dehydratedState = dehydrate(queryClient)
 
   return (
-    <main>
-      <h1>{note.title}</h1>
-      <p>{note.content}</p>
-      <span>{note.tag}</span>
-    </main>
-  );
+    <HydrationBoundary state={dehydratedState}>
+      <NoteClient id={id} />
+    </HydrationBoundary>
+  )
 }

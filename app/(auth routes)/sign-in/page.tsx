@@ -1,24 +1,42 @@
 'use client'
 
-import { login } from '@/lib/api/clientApi'
+import { login, getMe } from '@/lib/api/clientApi'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useAuthStore } from '@/lib/store/authStore'
 import styles from './SignInPage.module.css'
 
 export default function SignIn() {
   const router = useRouter()
   const [error, setError] = useState('')
 
-  const onSubmit = async (e: React.FormEvent) => {
+  const setUser = useAuthStore((state) => state.setUser)
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const form = new FormData(e.currentTarget as HTMLFormElement)
+    const form = new FormData(e.currentTarget)
 
     try {
       await login({
         email: form.get('email') as string,
         password: form.get('password') as string,
       })
+
+      // даємо cookies оновитись (важливо для стабільності)
+      await new Promise((r) => setTimeout(r, 50))
+
+      let user = null
+
+      try {
+        user = await getMe()
+      } catch {
+        user = null
+      }
+
+      if (user) {
+        setUser(user)
+      }
 
       router.push('/profile')
     } catch {

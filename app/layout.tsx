@@ -1,12 +1,15 @@
+import type { ReactNode } from 'react'
+import TanStackProvider from '@/components/TanStackProvider/TanStackProvider'
 import AuthProvider from '@/components/AuthProvider/AuthProvider'
 import Header from '@/components/Header/Header'
-import TanStackProvider from '@/components/TanStackProvider/TanStackProvider'
-import type { ReactNode } from 'react'
+import Footer from '@/components/Footer/Footer'
 
 export default function RootLayout({
   children,
+  modal,
 }: {
   children: ReactNode
+  modal: ReactNode
 }) {
   return (
     <html lang="en">
@@ -15,6 +18,8 @@ export default function RootLayout({
           <AuthProvider>
             <Header />
             {children}
+            <Footer />
+            {modal}
           </AuthProvider>
         </TanStackProvider>
       </body>

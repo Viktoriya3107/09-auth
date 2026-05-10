@@ -1,24 +1,34 @@
 import { cookies } from 'next/headers'
-import axios from 'axios'
+import { api } from './api'
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api'
-
-const serverApi = axios.create({ baseURL })
-
-function getCookieHeader() {
-  return cookies().toString()
+async function getCookieHeader() {
+  const cookieStore = await cookies()
+  return cookieStore.toString()
 }
 
 export const getMe = async () => {
-  const res = await serverApi.get('/users/me', {
-    headers: { Cookie: getCookieHeader() },
+  const res = await api.get('/users/me', {
+    headers: {
+      Cookie: await getCookieHeader(),
+    },
   })
-  return res.data
+  return res
 }
 
 export const checkSession = async () => {
-  const res = await serverApi.get('/auth/session', {
-    headers: { Cookie: getCookieHeader() },
+  const res = await api.get('/auth/session', {
+    headers: {
+      Cookie: await getCookieHeader(),
+    },
   })
-  return res.data
+  return res
+}
+
+export const getNoteById = async (id: string) => {
+  const res = await api.get(`/notes/${id}`, {
+    headers: {
+      Cookie: await getCookieHeader(),
+    },
+  })
+  return res
 }
