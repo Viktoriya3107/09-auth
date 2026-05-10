@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { checkSession } from '@/lib/api/clientApi'
+import { checkSession, getMe } from '@/lib/api/clientApi'
 import { useAuthStore } from '@/lib/store/authStore'
 
 export default function AuthProvider({
@@ -10,25 +10,30 @@ export default function AuthProvider({
 }: {
   children: ReactNode
 }) {
-  const { setUser, clear } = useAuthStore()
+  const { setUser, clearIsAuthenticated } = useAuthStore()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const init = async () => {
       try {
-        const user = await checkSession()
+        const session = await checkSession()
 
-        if (user) setUser(user)
-        else clear()
+        // якщо сесія активна → отримуємо user
+        if (session?.success) {
+          const user = await getMe()
+          setUser(user)
+        } else {
+          clearIsAuthenticated()
+        }
       } catch {
-        clear()
+        clearIsAuthenticated()
       } finally {
         setLoading(false)
       }
     }
 
     init()
-  }, [setUser, clear])
+  }, [setUser, clearIsAuthenticated])
 
   if (loading) return <p>Loading...</p>
 

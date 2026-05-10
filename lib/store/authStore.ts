@@ -5,7 +5,7 @@ interface AuthStore {
   user: User | null
   isAuthenticated: boolean
   setUser: (user: User) => void
-  clear: () => void
+  clearIsAuthenticated: () => void
 }
 
 export const useAuthStore = create<AuthStore>()((set) => ({
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthStore>()((set) => ({
       isAuthenticated: true,
     }),
 
-  clear: () =>
+  clearIsAuthenticated: () =>
     set({
       user: null,
       isAuthenticated: false,

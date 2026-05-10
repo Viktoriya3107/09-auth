@@ -1,5 +1,6 @@
 import AuthProvider from '@/components/AuthProvider/AuthProvider'
 import Header from '@/components/Header/Header'
+import TanStackProvider from '@/components/TanStackProvider/TanStackProvider'
 import type { ReactNode } from 'react'
 
 export default function RootLayout({
@@ -10,10 +11,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <Header />
-          {children}
-        </AuthProvider>
+        <TanStackProvider>
+          <AuthProvider>
+            <Header />
+            {children}
+          </AuthProvider>
+        </TanStackProvider>
       </body>
     </html>
   )
