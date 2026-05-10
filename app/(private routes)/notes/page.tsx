@@ -1,18 +1,12 @@
-export default function NotesPage() {
-  const notes = [
-    { id: 1, title: 'First note' },
-    { id: 2, title: 'Second note' },
-  ]
+import { getNotes } from '@/lib/api/notes';
+
+export default async function NotesPage() {
+  const notes = await getNotes();
 
   return (
     <main>
-      <h1>Notes</h1>
-
-      <ul>
-        {notes.map((note) => (
-          <li key={note.id}>{note.title}</li>
-        ))}
-      </ul>
+      <h1>All notes</h1>
+      <pre>{JSON.stringify(notes, null, 2)}</pre>
     </main>
-  )
+  );
 }
