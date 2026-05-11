@@ -39,8 +39,12 @@ export default function NotesClient() {
     <div>
       <Link href="/notes/action/create">Create note</Link>
 
-      <SearchBox onSearch={setSearch} />
-
+      <SearchBox
+  onSearch={(value: string) => {
+    setSearch(value)
+    setPage(1)
+  }}
+/>
       <NoteList notes={data.items} />
 
       <Pagination
