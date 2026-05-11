@@ -1,39 +1,53 @@
 'use client'
 
 import { useState } from 'react'
+import { useDebounce } from 'use-debounce'
 import { useQuery } from '@tanstack/react-query'
-import Link from 'next/link'
-import { getNotes } from '@/lib/api/clientApi'
-import type { Note } from '@/types/note'
+import { useParams } from 'next/navigation'
 
-type NotesResponse = {
-  items: Note[]
-  totalPages: number
-}
+import { getNotes } from '@/lib/api/clientApi'
+import type { NotesResponse } from '@/lib/api/clientApi'
+
+import SearchBox from '@/components/SearchBox/SearchBox'
+import Pagination from '@/components/Pagination/Pagination'
+import NoteList from '@/components/NoteList/NoteList'
+import Link from 'next/link'
 
 export default function NotesClient() {
-  const [page, setPage] = useState(1)
+  const params = useParams()
+  const tag = Array.isArray(params.slug) ? params.slug[0] : undefined
 
-  const { data } = useQuery<NotesResponse>({
-    queryKey: ['notes', page],
-    queryFn: () => getNotes({ page }),
+  const [page, setPage] = useState<number>(1)
+  const [search, setSearch] = useState<string>('')
+
+  const [debouncedSearch] = useDebounce(search, 500)
+
+  const { data, isLoading, isError } = useQuery<NotesResponse>({
+    queryKey: ['notes', page, debouncedSearch, tag],
+    queryFn: () =>
+      getNotes({
+        page,
+        search: debouncedSearch || undefined,
+        tag,
+      }),
   })
+
+  if (isLoading) return <p>Loading...</p>
+  if (isError || !data) return <p>Error</p>
 
   return (
     <div>
-      <ul>
-        {data?.items?.map((note) => (
-          <li key={note.id}>
-            <Link href={`/notes/${note.id}`}>
-              {note.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      <Link href="/notes/action/create">Create note</Link>
 
-      <button onClick={() => setPage((p) => p + 1)}>
-        Next
-      </button>
+      <SearchBox onSearch={setSearch} />
+
+      <NoteList notes={data.items} />
+
+      <Pagination
+        page={page}
+        totalPages={data.totalPages}
+        onChange={(p: number) => setPage(p)}
+      />
     </div>
   )
 }

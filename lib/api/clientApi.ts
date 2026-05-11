@@ -53,5 +53,5 @@ export const getNoteById = (id: string): Promise<Note> =>
 export const createNote = (data: CreateNoteDTO): Promise<Note> =>
   api.post('/notes', data).then(res => res.data)
 
-export const deleteNote = (id: string): Promise<void> =>
-  api.delete(`/notes/${id}`).then(res => res.data)
+export const deleteNote = (id: string): Promise<Note> =>
+  api.delete<Note>(`/notes/${id}`).then(res => res.data)

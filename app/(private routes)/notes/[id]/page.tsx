@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
-import { getNoteById } from '@/lib/api/clientApi'
+import { getNoteById } from '@/lib/api/serverApi'
 import NoteClient from './NoteClient'
 
 export const dynamic = 'force-dynamic'

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 export async function proxy(req: NextRequest) {
-  const accessToken = req.cookies.get('accessToken')?.value
-  const refreshToken = req.cookies.get('refreshToken')?.value
+  const cookieStore = await cookies()
+
+  const accessToken = cookieStore.get('accessToken')?.value
+  const refreshToken = cookieStore.get('refreshToken')?.value
 
   const isAuthPage =
     req.nextUrl.pathname.startsWith('/sign-in') ||
@@ -14,7 +17,7 @@ export async function proxy(req: NextRequest) {
 
   let validToken = accessToken
 
-  // refresh flow
+  
   if (!accessToken && refreshToken) {
     try {
       const res = await fetch(
@@ -32,19 +35,25 @@ export async function proxy(req: NextRequest) {
         validToken = session.accessToken
 
         const response = NextResponse.next()
-        response.cookies.set('accessToken', session.accessToken)
+
+        
+        const setCookie = res.headers.get('set-cookie')
+
+        if (setCookie) {
+          response.headers.set('set-cookie', setCookie)
+        }
 
         return response
       }
     } catch {}
   }
 
-  // protect private routes
+  
   if (!validToken && isPrivatePage) {
     return NextResponse.redirect(new URL('/sign-in', req.url))
   }
 
-  // redirect auth pages
+  
   if (validToken && isAuthPage) {
     return NextResponse.redirect(new URL('/', req.url))
   }
