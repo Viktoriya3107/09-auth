@@ -23,7 +23,7 @@ export default function SignIn() {
         password: form.get('password') as string,
       })
 
-      // даємо cookies оновитись (важливо для стабільності)
+      
       await new Promise((r) => setTimeout(r, 50))
 
       let user = null

@@ -23,7 +23,7 @@ export default function SignUp() {
         password: form.get('password') as string,
       })
 
-      // даємо бекенду встановити cookies
+      
       await new Promise((r) => setTimeout(r, 50))
 
       let user = null

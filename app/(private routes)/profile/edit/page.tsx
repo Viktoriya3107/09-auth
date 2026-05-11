@@ -43,7 +43,7 @@ export default function EditProfile() {
 
     const updated = await updateMe({ username })
 
-    // 🔥 оновлюємо global store
+    
     setUser(updated)
 
     router.push('/profile')
@@ -69,12 +69,12 @@ export default function EditProfile() {
           placeholder="Username"
         />
 
-        {/* email read-only */}
+        
         <input value={email} readOnly />
 
         <button type="submit">Save</button>
 
-        {/* cancel button */}
+        
         <button type="button" onClick={() => router.back()}>
           Cancel
         </button>

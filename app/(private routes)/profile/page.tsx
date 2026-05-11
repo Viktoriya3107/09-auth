@@ -1,43 +1,86 @@
-export const dynamic = 'force-dynamic'
+'use client'
 
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import { getMe } from '@/lib/api/serverApi'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { getMe, updateMe } from '@/lib/api/clientApi'
+import { useAuthStore } from '@/lib/store/authStore'
 import styles from './ProfilePage.module.css'
 
-export const metadata: Metadata = {
-  title: 'Profile',
-  description: 'User profile page',
-}
+export default function EditProfilePage() {
+  const router = useRouter()
+  const setUser = useAuthStore((state) => state.setUser)
 
-export default async function Profile() {
-  const user = await getMe()
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [avatar, setAvatar] = useState<string | null>(null)
 
-  if (!user) {
-    return (
-      <main>
-        <h1>No user found</h1>
-      </main>
-    )
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await getMe()
+
+      setUsername(user.username)
+      setEmail(user.email)
+      setAvatar(user.avatar ?? '/default-avatar.png')
+    }
+
+    loadUser()
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+
+    const updatedUser = await updateMe({ username })
+
+    setUser(updatedUser)
+    router.push('/profile')
+  }
+
+  const handleCancel = () => {
+    router.push('/profile')
   }
 
   return (
     <main className={styles.mainContent}>
       <div className={styles.profileCard}>
-        <h1>Profile Page</h1>
+        <h1 className={styles.formTitle}>Edit Profile</h1>
 
         <Image
-          src={user.avatar ?? '/default-avatar.png'}
+          src={avatar ?? '/default-avatar.png'}
           alt="User Avatar"
           width={120}
           height={120}
+          className={styles.avatar}
         />
 
-        <p>Username: {user.username}</p>
-        <p>Email: {user.email}</p>
+        <form className={styles.profileInfo} onSubmit={handleSubmit}>
+          <div className={styles.usernameWrapper}>
+            <label htmlFor="username">Username:</label>
+            <input
+              id="username"
+              type="text"
+              className={styles.input}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
 
-        <Link href="/profile/edit">Edit Profile</Link>
+          <p>Email: {email}</p>
+
+          <div className={styles.actions}>
+            <button type="submit" className={styles.saveButton}>
+              Save
+            </button>
+
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </main>
   )

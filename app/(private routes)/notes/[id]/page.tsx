@@ -6,11 +6,18 @@ import NoteClient from './NoteClient'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ): Promise<Metadata> {
-  const { id } = await params
+  const { id } = params
 
   const note = await getNoteById(id)
+
+  if (!note) {
+    return {
+      title: 'Note not found',
+      description: 'This note does not exist',
+    }
+  }
 
   return {
     title: note.title,
@@ -31,9 +38,9 @@ export async function generateMetadata(
 export default async function NotePage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
-  const { id } = await params
+  const { id } = params
 
   const queryClient = new QueryClient()
 
