@@ -35,23 +35,32 @@ export default function NotesClient() {
   if (isLoading) return <p>Loading...</p>
   if (isError || !data) return <p>Error</p>
 
+  const hasNotes = data.items.length > 0
+
   return (
     <div>
       <Link href="/notes/action/create">Create note</Link>
 
       <SearchBox
-  onSearch={(value: string) => {
-    setSearch(value)
-    setPage(1)
-  }}
-/>
-      <NoteList notes={data.items} />
-
-      <Pagination
-        page={page}
-        totalPages={data.totalPages}
-        onChange={(p: number) => setPage(p)}
+        onSearch={(value: string) => {
+          setSearch(value)
+          setPage(1)
+        }}
       />
+
+      {hasNotes ? (
+        <>
+          <NoteList notes={data.items} />
+
+          <Pagination
+            page={page}
+            totalPages={data.totalPages}
+            onChange={(p: number) => setPage(p)}
+          />
+        </>
+      ) : (
+        <p>No notes found</p>
+      )}
     </div>
   )
 }

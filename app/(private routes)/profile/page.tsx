@@ -1,86 +1,62 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import type { Metadata } from 'next'
+import Link from 'next/link'
 import Image from 'next/image'
-import { getMe, updateMe } from '@/lib/api/clientApi'
-import { useAuthStore } from '@/lib/store/authStore'
+import { getMe } from '@/lib/api/serverApi'
 import styles from './ProfilePage.module.css'
 
-export default function EditProfilePage() {
-  const router = useRouter()
-  const setUser = useAuthStore((state) => state.setUser)
+export const dynamic = 'force-dynamic'
 
-  const [username, setUsername] = useState('')
-  const [email, setEmail] = useState('')
-  const [avatar, setAvatar] = useState<string | null>(null)
+export const metadata: Metadata = {
+  title: 'Profile',
+  description: 'User profile page',
+  openGraph: {
+    title: 'Profile',
+    description: 'User profile page',
+    url: 'https://notehub.com/profile',
+    images: [
+      {
+        url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+      },
+    ],
+  },
+}
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const user = await getMe()
+export default async function ProfilePage() {
+  const user = await getMe()
 
-      setUsername(user.username)
-      setEmail(user.email)
-      setAvatar(user.avatar ?? '/default-avatar.png')
-    }
-
-    loadUser()
-  }, [])
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    const updatedUser = await updateMe({ username })
-
-    setUser(updatedUser)
-    router.push('/profile')
-  }
-
-  const handleCancel = () => {
-    router.push('/profile')
+  if (!user) {
+    return (
+      <main>
+        <h1>No user found</h1>
+      </main>
+    )
   }
 
   return (
     <main className={styles.mainContent}>
       <div className={styles.profileCard}>
-        <h1 className={styles.formTitle}>Edit Profile</h1>
+        <div className={styles.header}>
+          <h1 className={styles.formTitle}>Profile Page</h1>
 
-        <Image
-          src={avatar ?? '/default-avatar.png'}
-          alt="User Avatar"
-          width={120}
-          height={120}
-          className={styles.avatar}
-        />
+          <Link href="/profile/edit" className={styles.editProfileButton}>
+            Edit Profile
+          </Link>
+        </div>
 
-        <form className={styles.profileInfo} onSubmit={handleSubmit}>
-          <div className={styles.usernameWrapper}>
-            <label htmlFor="username">Username:</label>
-            <input
-              id="username"
-              type="text"
-              className={styles.input}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
+        <div className={styles.avatarWrapper}>
+          <Image
+            src={user.avatar ?? '/default-avatar.png'}
+            alt="User Avatar"
+            width={120}
+            height={120}
+            className={styles.avatar}
+          />
+        </div>
 
-          <p>Email: {email}</p>
-
-          <div className={styles.actions}>
-            <button type="submit" className={styles.saveButton}>
-              Save
-            </button>
-
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleCancel}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+        <div className={styles.profileInfo}>
+          <p>Username: {user.username}</p>
+          <p>Email: {user.email}</p>
+        </div>
       </div>
     </main>
   )
